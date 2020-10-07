@@ -1,0 +1,31 @@
+.new-post-container {
+    padding: 1rem;
+    margin: 1rem 20%;
+    border: 1px solid rgb(210, 211, 216);
+
+}
+
+#new-post-text {
+    width: 100%;
+}
+
+.post-container {
+    border: 1px solid rgb(210, 211, 216);
+    margin: 1rem 20%;
+    padding: 1rem;
+}
+
+.post-user {
+    font-weight: bold;
+}
+
+.post-text {
+    font-size: 1.2rem;
+    padding: 0.6rem 0 0.6rem 0;
+}
+
+.post-created {
+    font-size: 0.8rem;
+    color: rgb(133 135 136 / 70%);
+    font-weight: 500;
+}

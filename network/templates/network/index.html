@@ -1,5 +1,28 @@
 {% extends "network/layout.html" %}
+{% load static %}
 
 {% block body %}
-    TODO
+    <div id='create-post-view'>
+        <div class='new-post-container'>
+            <h5>New Post</h5>
+            <form class='new-post-form'>
+                <textarea id='new-post-text'></textarea>
+                <div>
+                    <input type="submit" value="Post" class="btn btn-primary"/>
+                </div>
+                
+            </form>
+
+        </div>
+    </div>
+
+
+    <div id='all-posts-view'>
+        
+    </div>
+
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'network/index.js' %}"></script>
 {% endblock %}
