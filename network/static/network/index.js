@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('#all-posts').addEventListener('click', all_posts);
     document.querySelector('#create-post-view').addEventListener('click', create_post);
+    
 
      // By default
     console.log('on load')
@@ -11,6 +12,7 @@ function all_posts() {
     console.log('all_post function')
     document.querySelector('#create-post-view').style.display = 'block';
     document.querySelector('#all-posts').style.display = 'block';
+    let username = document.querySelector('#username').text;
 
     fetch('/all_posts')
     .then(response => response.json())
@@ -36,15 +38,45 @@ function all_posts() {
             timestamp.innerHTML = post.date_created;
             postContainer.append(timestamp);
 
+            let likesContainer = document.createElement('div');
+            likesContainer.className = 'likes-container';
+            postContainer.append(likesContainer);
+
+            let heart = document.createElement('i');
+            heart.className = 'fa fa-heart-o';
+            heart.dataset.id = post.id;
+            heart.onclick = like_toggle;
+            // heart.innerHTML = '&#xf004';
+            likesContainer.append(heart);
+
             let likes = document.createElement('div');
             likes.className = 'post-likes';
-            likes.innerHTML = 'Likes: 0';
-            postContainer.append(likes);
+            likes.innerHTML = '0';
+            likesContainer.append(likes);
 
             // <button class="btn btn-primary post-edit"></button>
 
             document.querySelector('#all-posts-view').append(postContainer)    
         }
+    })
+}
+
+function like_toggle(event) {
+    // console.log('event', event)
+    // event.target.classList.toggle("fa-heart");
+    // event.target.classList.toggle("fa-heart-o");
+    post_id = event.target.dataset.id
+    fetch(`post/${post_id}/like`, {method:'PUT'})
+    .then(response => response.json())
+    .then(data => {
+        if (data.liked === true) {
+            event.target.classList.remove('fa-heart-o');
+            event.target.classList.add('fa-heart')
+        } else {
+            event.target.classList.remove('fa-heart');
+            event.target.classList.add('fa-heart-o')
+        }
+
     })
 }
 

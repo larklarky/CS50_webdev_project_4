@@ -71,7 +71,7 @@ def register(request):
 @login_required
 def create_post(request):
     if request.method != "POST":
-        return JsonResponse({"error": "POST request required."}, status=400);
+        return JsonResponse({"error": "POST request required."}, status=400)
     
     data = json.loads(request.body)
     text = data.get('text', '')
@@ -83,5 +83,28 @@ def create_post(request):
 
 @login_required
 def all_posts(request):
+    current_user = request.user;
     posts = Post.objects.order_by('-date_created').all()
     return JsonResponse([post.serialize() for post in posts], safe=False)
+
+
+@csrf_exempt
+@login_required
+def toggle_like(request, post_id):
+    if request.method != "PUT":
+        return JsonResponse({"error": "PUT request required."}, status=400)
+    user = request.user;
+    post_id = post_id;
+    like = Like.objects.filter(post_id=post_id, user=user).first()
+    if not like:
+        new_like = Like(post_id=post_id, user=user)
+        new_like.save()
+        liked = True
+    else:
+        like.delete()
+        liked = False
+    
+    likes_count = Like.objects.filter(post_id=post_id).count()
+    return JsonResponse({"liked": liked, "likes_count": likes_count})
+        
+    

@@ -29,3 +29,25 @@
     color: rgb(133 135 136 / 70%);
     font-weight: 500;
 }
+
+.likes-container {
+    display: flex;
+    flex-direction: row;
+}
+
+.fa {
+    font-size: 1rem;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .fa-heart-o {
+      margin-top: 5px;
+      margin-right: 5px;
+  }
+
+  .fa-heart {
+    margin-top: 5px;
+    margin-right: 5px;
+  }
+  
