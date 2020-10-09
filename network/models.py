@@ -18,13 +18,20 @@ class Post(models.Model):
     date_created = models.DateTimeField(auto_now_add = True)
     date_modified = models.DateTimeField(auto_now = True)
 
-    def serialize(self):
+    def serialize(self, current_user):
+        like = self.likes.filter(user=current_user).first()
+        if like:
+            liked = True;
+        else:
+            liked = False;
         return {
             "id": self.id,
             "text": self.text,
             "user": self.user.serialize(),
             "date_created": self.date_created.strftime("%b %-d %Y, %-I:%M %p"),
-            "date_modified": self.date_modified.strftime("%b %-d %Y, %-I:%M %p")
+            "date_modified": self.date_modified.strftime("%b %-d %Y, %-I:%M %p"),
+            "likes_count": self.likes.count(),
+            "liked": liked,
         }
     
 class Like(models.Model):

@@ -85,7 +85,7 @@ def create_post(request):
 def all_posts(request):
     current_user = request.user;
     posts = Post.objects.order_by('-date_created').all()
-    return JsonResponse([post.serialize() for post in posts], safe=False)
+    return JsonResponse([post.serialize(current_user) for post in posts], safe=False)
 
 
 @csrf_exempt

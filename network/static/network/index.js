@@ -43,15 +43,18 @@ function all_posts() {
             postContainer.append(likesContainer);
 
             let heart = document.createElement('i');
-            heart.className = 'fa fa-heart-o';
+            if (post.liked == true){
+                heart.className = 'fa fa-heart';
+            } else {
+                heart.className = 'fa fa-heart-o';
+            }
             heart.dataset.id = post.id;
             heart.onclick = like_toggle;
-            // heart.innerHTML = '&#xf004';
             likesContainer.append(heart);
 
             let likes = document.createElement('div');
             likes.className = 'post-likes';
-            likes.innerHTML = '0';
+            likes.innerHTML = post.likes_count;
             likesContainer.append(likes);
 
             // <button class="btn btn-primary post-edit"></button>
@@ -64,17 +67,20 @@ function all_posts() {
 function like_toggle(event) {
     // console.log('event', event)
     // event.target.classList.toggle("fa-heart");
-    // event.target.classList.toggle("fa-heart-o");
-    post_id = event.target.dataset.id
+    // event.target.classList.toggle("fa-heart-o"); 
+    let post_id = event.target.dataset.id
     fetch(`post/${post_id}/like`, {method:'PUT'})
     .then(response => response.json())
     .then(data => {
+        let likes_count = data.likes_count;
         if (data.liked === true) {
             event.target.classList.remove('fa-heart-o');
             event.target.classList.add('fa-heart')
+            event.target.parentElement.children[1].innerHTML = likes_count;
         } else {
             event.target.classList.remove('fa-heart');
-            event.target.classList.add('fa-heart-o')
+            event.target.classList.add('fa-heart-o');
+            event.target.parentElement.children[1].innerHTML = likes_count;
         }
 
     })
