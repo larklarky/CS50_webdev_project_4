@@ -11,8 +11,9 @@ document.addEventListener('DOMContentLoaded', function() {
 function all_posts() {
     console.log('all_post function')
     document.querySelector('#create-post-view').style.display = 'block';
-    document.querySelector('#all-posts').style.display = 'block';
+    document.querySelector('#all-posts-view').style.display = 'block';
     let username = document.querySelector('#username').text;
+    document.querySelector('#all-posts-view').innerHTML = '';
 
     fetch('/all_posts')
     .then(response => response.json())
@@ -65,9 +66,7 @@ function all_posts() {
 }
 
 function like_toggle(event) {
-    // console.log('event', event)
-    // event.target.classList.toggle("fa-heart");
-    // event.target.classList.toggle("fa-heart-o"); 
+    
     let post_id = event.target.dataset.id
     fetch(`post/${post_id}/like`, {method:'PUT'})
     .then(response => response.json())
@@ -87,7 +86,30 @@ function like_toggle(event) {
 }
 
 function create_post() {
+    document.querySelector('#error-message').style.display = 'none';
 
+    document.querySelector('.new-post-form').onsubmit = (event) => {
+        
+        fetch('/create_post', {
+            method: 'POST',
+            body: JSON.stringify({text: document.querySelector('#new-post-text').value})
+        })
+        .then(response => {
+            response.json().then(result => {
+                if (response.status == 201) {
+                    document.querySelector('#new-post-text').value = '';
+                    all_posts();
+                } else {
+                    document.querySelector('#error-message').style.display = 'block';
+                    document.querySelector('#error-message').innerHTML = result.error;
+                }
+            })
+        })
+        .catch(error => {
+            console.log('Something went wrong', error)
+        })
+        event.preventDefault();
+    }
 }
 
 function profile_page() {

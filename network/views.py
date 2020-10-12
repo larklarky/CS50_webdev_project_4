@@ -106,5 +106,31 @@ def toggle_like(request, post_id):
     
     likes_count = Like.objects.filter(post_id=post_id).count()
     return JsonResponse({"liked": liked, "likes_count": likes_count})
-        
+
+
+
+@csrf_exempt
+@login_required
+def edit_post(request, post_id):
+    if request.method != "PUT":
+        return JsonResponse({"error": "PUT request required."}, status=400)
+
+    user = request.user
+    post_id = post_id
+
+    data = json.loads(request.body)
+    text = data.get('text', '')
+    
+    edited_post = Post.objects.filter(id=post_id, user=user).first()
+    if edited_post:
+        edited_post.text = text
+        edited_post.save()
+        return JsonResponse({"post": edited_post.serialize(user)})
+    else:
+       return JsonResponse({"error": "Only posts' owners can edit their posts."}, status=400) 
+    
+    
+
+    
+
     
