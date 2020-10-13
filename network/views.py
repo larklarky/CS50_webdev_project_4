@@ -88,6 +88,7 @@ def all_posts(request):
     return JsonResponse([post.serialize(current_user) for post in posts], safe=False)
 
 
+
 @csrf_exempt
 @login_required
 def toggle_like(request, post_id):
@@ -112,22 +113,24 @@ def toggle_like(request, post_id):
 @csrf_exempt
 @login_required
 def edit_post(request, post_id):
-    if request.method != "PUT":
-        return JsonResponse({"error": "PUT request required."}, status=400)
 
     user = request.user
     post_id = post_id
 
-    data = json.loads(request.body)
-    text = data.get('text', '')
+    post = Post.objects.filter(id=post_id, user=user).first()
     
-    edited_post = Post.objects.filter(id=post_id, user=user).first()
-    if edited_post:
-        edited_post.text = text
-        edited_post.save()
-        return JsonResponse({"post": edited_post.serialize(user)})
-    else:
-       return JsonResponse({"error": "Only posts' owners can edit their posts."}, status=400) 
+    if post:
+        if request.method == "GET":
+            return JsonResponse(post.serialize(user))
+
+        elif request.method == "PUT":
+            data = json.loads(request.body)
+            text = data.get('text', '')
+            post.text = text
+            post.save()
+            return JsonResponse(post.serialize(user), status=201)
+        else:
+            return JsonResponse({"error": "Only posts' owners can edit their posts."}, status=400) 
     
     
 

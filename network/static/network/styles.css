@@ -5,7 +5,7 @@
     padding: 10px 15px 10px 15px;
 } */
 
-.new-post-container {
+.new-post-container, .edit-post-container {
     padding: 1rem;
     margin: 1rem 20%;
     border: 1px solid rgb(210, 211, 216);
@@ -13,6 +13,10 @@
 }
 
 #new-post-text {
+    width: 100%;
+}
+
+#edit-post-text {
     width: 100%;
 }
 

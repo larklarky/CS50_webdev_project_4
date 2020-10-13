@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('#all-posts').addEventListener('click', all_posts);
-    document.querySelector('#create-post-view').addEventListener('click', create_post);
-    
+    document.querySelector('.new-post-form').addEventListener('submit', create_post);
 
+    
      // By default
     console.log('on load')
      all_posts();
@@ -12,6 +12,7 @@ function all_posts() {
     console.log('all_post function')
     document.querySelector('#create-post-view').style.display = 'block';
     document.querySelector('#all-posts-view').style.display = 'block';
+    document.querySelector('#edit-post-view').style.display = 'none';
     let username = document.querySelector('#username').text;
     document.querySelector('#all-posts-view').innerHTML = '';
 
@@ -58,9 +59,17 @@ function all_posts() {
             likes.innerHTML = post.likes_count;
             likesContainer.append(likes);
 
-            // <button class="btn btn-primary post-edit"></button>
-
-            document.querySelector('#all-posts-view').append(postContainer)    
+            if (username == post.user.username) {
+                let edit = document.createElement('button');
+                edit.className = 'btn btn-primary post-edit';
+                edit.dataset.id = post.id;
+                edit.innerHTML = 'Edit';
+                edit.onclick = edit_post;
+                postContainer.append(edit)
+            }
+            
+            document.querySelector('#all-posts-view').append(postContainer)
+        
         }
     })
 }
@@ -85,19 +94,55 @@ function like_toggle(event) {
     })
 }
 
-function create_post() {
+function create_post(event) {
     document.querySelector('#error-message').style.display = 'none';
 
-    document.querySelector('.new-post-form').onsubmit = (event) => {
+    fetch('/create_post', {
+        method: 'POST',
+        body: JSON.stringify({text: document.querySelector('#new-post-text').value})
+    })
+    .then(response => {
+        response.json().then(result => {
+            if (response.status == 201) {
+                document.querySelector('#new-post-text').value = '';
+                all_posts();
+            } else {
+                document.querySelector('#error-message').style.display = 'block';
+                document.querySelector('#error-message').innerHTML = result.error;
+            }
+        })
+    })
+    .catch(error => {
+        console.log('Something went wrong', error)
+    })
+    event.preventDefault();
+}
+
+
+function edit_post(event) {
+    document.querySelector('#error-message').style.display = 'none';
+    document.querySelector('#edit-post-view').style.display = 'block';
+    document.querySelector('#create-post-view').style.display = 'none';
+    document.querySelector('#all-posts-view').style.display = 'none';
+
+    let post_id = event.target.dataset.id;
+    
+    fetch(`post/${post_id}`)
+    .then(response => response.json())
+    .then(post => {
         
-        fetch('/create_post', {
-            method: 'POST',
-            body: JSON.stringify({text: document.querySelector('#new-post-text').value})
+        document.querySelector('#edit-post-text').value = post.text;
+    });
+
+    document.querySelector('.edit-post-form').onsubmit = (event) => {
+        fetch(`post/${post_id}`, {
+            method: 'PUT',
+            body: JSON.stringify({text: document.querySelector('#edit-post-text').value})
         })
         .then(response => {
             response.json().then(result => {
                 if (response.status == 201) {
-                    document.querySelector('#new-post-text').value = '';
+                    document.querySelector('#edit-post-text').value = '';
                     all_posts();
                 } else {
                     document.querySelector('#error-message').style.display = 'block';
@@ -105,12 +150,10 @@ function create_post() {
                 }
             })
         })
-        .catch(error => {
-            console.log('Something went wrong', error)
-        })
-        event.preventDefault();
     }
+
 }
+
 
 function profile_page() {
 
