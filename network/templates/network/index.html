@@ -3,6 +3,7 @@
 
 {% block body %}
 
+{% if user.is_authenticated %}
     <div id='create-post-view'>
         <div id='error-message'></div>
         <div class='new-post-container'>
@@ -37,6 +38,20 @@
 
         </div>
     </div>
+
+    <div id='user-page-view'>
+        <div class="user-page-information-container">
+            <div class="title"></div>
+            <div class="followings-container">
+                <div class='user-follows'></div>
+                <div class="user-followers"></div>
+            </div>
+        </div>
+        
+    </div>
+
+    
+{% endif %}
 
 {% endblock %}
 

@@ -156,5 +156,5 @@ function edit_post(event) {
 
 
 function profile_page() {
-
+    
 }

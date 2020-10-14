@@ -131,8 +131,26 @@ def edit_post(request, post_id):
             return JsonResponse(post.serialize(user), status=201)
         else:
             return JsonResponse({"error": "Only posts' owners can edit their posts."}, status=400) 
-    
-    
+
+
+
+@login_required
+def profile_page(request, user_id):
+    user = User.objects.filter(id=user_id).first()
+    if not user:
+        return JsonResponse({"error": "User doesn't exist"}, status=404)
+    else:
+        followers = Following.objects.filter(followee=user).count()
+        follows = Following.objects.filter(follower=user).count()
+        posts = Post.objects.filter(user=user).order_by('-date_created')
+
+        return JsonResponse({
+            "user": user.serialize(),
+            "followers": followers,
+            "follows": follows,
+            "posts": [post.serialize(user) for post in posts]
+        }, status=201)
+
 
     
 
