@@ -1,15 +1,39 @@
-/* #error-message {
+#error-message {
     color: #a94442;
     background-color: #f2dede;
     border-color: #ebccd1;
     padding: 10px 15px 10px 15px;
-} */
+}
 
-.new-post-container, .edit-post-container {
+.new-post-container, .edit-post-container, .post-container, .user-page-information-container {
     padding: 1rem;
     margin: 1rem 20%;
     border: 1px solid rgb(210, 211, 216);
 
+}
+.user-page-information-container {
+    background-color: #f8f9fa;
+    margin-bottom: 2rem;
+}
+
+#user-page-view > h5{
+    margin: 1rem 20%;
+}
+
+.followings-container {
+    display: flex;
+    flex-direction: row;
+}
+
+.title {
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.user-follows, .user-followers {
+    padding-right: 10px;
+    margin-top: 1rem;
+    font-weight: normal;
 }
 
 #new-post-text {
@@ -20,14 +44,14 @@
     width: 100%;
 }
 
-.post-container {
-    border: 1px solid rgb(210, 211, 216);
-    margin: 1rem 20%;
-    padding: 1rem;
-}
 
 .post-user {
     font-weight: bold;
+    cursor: pointer;
+}
+
+.post-user:hover {
+    color: rgb(47, 84, 204);
 }
 
 .post-text {

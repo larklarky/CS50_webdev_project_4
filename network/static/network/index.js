@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('#all-posts').addEventListener('click', all_posts);
     document.querySelector('.new-post-form').addEventListener('submit', create_post);
+    document.querySelector('#username').addEventListener('click', profile_page);
 
     
      // By default
@@ -8,11 +9,66 @@ document.addEventListener('DOMContentLoaded', function() {
      all_posts();
 })
 
+function build_post(post) {
+    let postContainer = document.createElement('div');
+    postContainer.className = 'post-container';
+
+    let user = document.createElement('div');
+    user.className = 'post-user';
+    user.innerHTML = post.user.username;
+    user.dataset.id = post.user.id;
+    user.addEventListener('click', profile_page);
+    postContainer.append(user);
+
+    let text = document.createElement('div');
+    text.className = 'post-text';
+    text.innerHTML = post.text;
+    postContainer.append(text);
+
+    let timestamp = document.createElement('div');
+    timestamp.className = 'post-created';
+    timestamp.innerHTML = post.date_created;
+    postContainer.append(timestamp);
+
+    let likesContainer = document.createElement('div');
+    likesContainer.className = 'likes-container';
+    postContainer.append(likesContainer);
+
+    let heart = document.createElement('i');
+    if (post.liked == true){
+        heart.className = 'fa fa-heart';
+    } else {
+        heart.className = 'fa fa-heart-o';
+    }
+    heart.dataset.id = post.id;
+    heart.onclick = like_toggle;
+    likesContainer.append(heart);
+
+    let likes = document.createElement('div');
+    likes.className = 'post-likes';
+    likes.innerHTML = post.likes_count;
+    likesContainer.append(likes);
+
+    if (username == post.user.username) {
+        let edit = document.createElement('button');
+        edit.className = 'btn btn-primary post-edit';
+        edit.dataset.id = post.id;
+        edit.innerHTML = 'Edit';
+        edit.onclick = edit_post;
+        postContainer.append(edit)
+    }
+    return postContainer;
+
+}
+
+
 function all_posts() {
     console.log('all_post function')
+    document.querySelector('#error-message').style.display = 'none';
     document.querySelector('#create-post-view').style.display = 'block';
     document.querySelector('#all-posts-view').style.display = 'block';
     document.querySelector('#edit-post-view').style.display = 'none';
+    document.querySelector('#user-page-view').style.display = 'none';
     let username = document.querySelector('#username').text;
     document.querySelector('#all-posts-view').innerHTML = '';
 
@@ -20,53 +76,7 @@ function all_posts() {
     .then(response => response.json())
     .then(posts => {
         for (post of posts) {
-            let postContainer = document.createElement('div');
-            postContainer.className = 'post-container';
-
-            let user = document.createElement('div');
-            user.className = 'post-user';
-            user.innerHTML = post.user.username;
-            user.dataset.id = post.user.id;
-            user.addEventListener('click', profile_page);
-            postContainer.append(user);
-
-            let text = document.createElement('div');
-            text.className = 'post-text';
-            text.innerHTML = post.text;
-            postContainer.append(text);
-
-            let timestamp = document.createElement('div');
-            timestamp.className = 'post-created';
-            timestamp.innerHTML = post.date_created;
-            postContainer.append(timestamp);
-
-            let likesContainer = document.createElement('div');
-            likesContainer.className = 'likes-container';
-            postContainer.append(likesContainer);
-
-            let heart = document.createElement('i');
-            if (post.liked == true){
-                heart.className = 'fa fa-heart';
-            } else {
-                heart.className = 'fa fa-heart-o';
-            }
-            heart.dataset.id = post.id;
-            heart.onclick = like_toggle;
-            likesContainer.append(heart);
-
-            let likes = document.createElement('div');
-            likes.className = 'post-likes';
-            likes.innerHTML = post.likes_count;
-            likesContainer.append(likes);
-
-            if (username == post.user.username) {
-                let edit = document.createElement('button');
-                edit.className = 'btn btn-primary post-edit';
-                edit.dataset.id = post.id;
-                edit.innerHTML = 'Edit';
-                edit.onclick = edit_post;
-                postContainer.append(edit)
-            }
+            let postContainer = build_post(post);
             
             document.querySelector('#all-posts-view').append(postContainer)
         
@@ -124,6 +134,7 @@ function edit_post(event) {
     document.querySelector('#edit-post-view').style.display = 'block';
     document.querySelector('#create-post-view').style.display = 'none';
     document.querySelector('#all-posts-view').style.display = 'none';
+    document.querySelector('#user-page-view').style.display = 'none';
 
     let post_id = event.target.dataset.id;
     
@@ -155,6 +166,29 @@ function edit_post(event) {
 }
 
 
-function profile_page() {
+function profile_page(event) {
+    document.querySelector('#error-message').style.display = 'none';
+    document.querySelector('#edit-post-view').style.display = 'none';
+    document.querySelector('#create-post-view').style.display = 'none';
+    document.querySelector('#all-posts-view').style.display = 'none';
+    document.querySelector('#user-page-view').style.display = 'block';
+
     
+    let user_id = event.target.dataset.id;
+
+    fetch(`users/${user_id}`)
+    .then(response => response.json())
+    .then(result => {
+        document.querySelector('.title').innerHTML = `User: ${result.user.username}`;
+        document.querySelector('.user-follows').innerHTML = `Follows: ${result.follows}`;
+        document.querySelector('.user-followers').innerHTML = `Followers: ${result.followers}`;
+
+        for (post of result.posts) {
+            let postContainer = build_post(post);
+            
+            document.querySelector('#user-posts-container').append(postContainer)
+        }
+
+    })
+
 }
