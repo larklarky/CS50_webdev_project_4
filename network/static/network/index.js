@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('#all-posts').addEventListener('click', all_posts);
     document.querySelector('.new-post-form').addEventListener('submit', create_post);
-    document.querySelector('#username').addEventListener('click', profile_page);
+    document.querySelector('#username').addEventListener('click', (event) => profile_page(event.target.dataset.id));
 
     
      // By default
@@ -17,7 +17,7 @@ function build_post(post) {
     user.className = 'post-user';
     user.innerHTML = post.user.username;
     user.dataset.id = post.user.id;
-    user.addEventListener('click', profile_page);
+    user.addEventListener('click', () => profile_page(post.user.id));
     postContainer.append(user);
 
     let text = document.createElement('div');
@@ -62,7 +62,7 @@ function build_post(post) {
 }
 
 
-function all_posts() {
+function all_posts(page=1) {
     console.log('all_post function')
     document.querySelector('#error-message').style.display = 'none';
     document.querySelector('#create-post-view').style.display = 'block';
@@ -72,15 +72,41 @@ function all_posts() {
     let username = document.querySelector('#username').text;
     document.querySelector('#all-posts-view').innerHTML = '';
 
-    fetch('/all_posts')
+    fetch(`/all_posts?page=${page}`)
     .then(response => response.json())
-    .then(posts => {
-        for (post of posts) {
+    .then(data => {
+        for (post of data.posts) {
             let postContainer = build_post(post);
             
             document.querySelector('#all-posts-view').append(postContainer)
         
         }
+
+        if (data.pagination.pages > 1) {
+            let paginatorContainer = document.createElement('div');
+            paginatorContainer.className = "paginator-container";
+
+            if (data.pagination.current_page > 1) {
+                let previousPage = document.createElement('div');
+                previousPage.className = 'previos-page';
+                previousPage.innerHTML = 'Previous';
+                previousPage.onclick = () => {
+                    all_posts(data.pagination.current_page - 1)
+                } 
+                paginatorContainer.append(previousPage);
+            }
+            if (data.pagination.current_page < data.pagination.pages) {
+                let nextPage = document.createElement('div');
+                nextPage.className = 'next-page';
+                nextPage.innerHTML = 'Next';
+                nextPage.onclick = () => {
+                    all_posts(data.pagination.current_page + 1)
+                }
+                paginatorContainer.append(nextPage);
+            }
+            document.querySelector('#all-posts-view').append(paginatorContainer);
+        }
+        
     })
 }
 
@@ -166,17 +192,17 @@ function edit_post(event) {
 }
 
 
-function profile_page(event) {
+function profile_page(user_id, page=1) {
     document.querySelector('#error-message').style.display = 'none';
     document.querySelector('#edit-post-view').style.display = 'none';
     document.querySelector('#create-post-view').style.display = 'none';
     document.querySelector('#all-posts-view').style.display = 'none';
     document.querySelector('#user-page-view').style.display = 'block';
+    document.querySelector('#user-posts-container').innerHTML = '';
 
     
-    let user_id = event.target.dataset.id;
 
-    fetch(`users/${user_id}`)
+    fetch(`users/${user_id}?page=${page}`)
     .then(response => response.json())
     .then(result => {
         document.querySelector('.title').innerHTML = `User: ${result.user.username}`;
@@ -187,6 +213,31 @@ function profile_page(event) {
             let postContainer = build_post(post);
             
             document.querySelector('#user-posts-container').append(postContainer)
+        }
+
+        if (result.pagination.pages > 1) {
+            let paginatorContainer = document.createElement('div');
+            paginatorContainer.className = "paginator-container";
+            
+            if (result.pagination.current_page > 1) {
+                let previousPage = document.createElement('div');
+                previousPage.className = 'previos-page';
+                previousPage.innerHTML = 'Previous';
+                previousPage.onclick = () => {
+                    profile_page(user_id, result.pagination.current_page - 1)
+                } 
+                paginatorContainer.append(previousPage);
+            }
+            if (result.pagination.current_page < result.pagination.pages) {
+                let nextPage = document.createElement('div');
+                nextPage.className = 'next-page';
+                nextPage.innerHTML = 'Next';
+                nextPage.onclick = () => {
+                    profile_page(user_id, result.pagination.current_page + 1)
+                }
+                paginatorContainer.append(nextPage);
+            }
+            document.querySelector('#user-posts-container').append(paginatorContainer);
         }
 
     })

@@ -85,4 +85,27 @@
     margin-top: 5px;
     margin-right: 5px;
   }
+
+  .paginator-container {
+    display: flex;
+    flex-direction: row;
+    /* padding: 1rem; */
+    margin: 1rem 20%;
+  }
+
+  .next-page, .previos-page {
+    border: 1px solid rgb(210, 211, 216);
+    padding: 5px 10px;
+    margin-right: 1rem;
+    cursor: pointer;
+
+  }
+
+  .next-page:hover {
+    background-color: #f8f9fa;
+  }
+
+  .previos-page:hover {
+    background-color: #f8f9fa;
+  }
   

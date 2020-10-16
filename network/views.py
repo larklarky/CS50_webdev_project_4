@@ -2,6 +2,7 @@ import json
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
+from django.core.paginator import Paginator
 from django.db import IntegrityError
 from django.http import JsonResponse
 from django.http import HttpResponse, HttpResponseRedirect
@@ -85,7 +86,17 @@ def create_post(request):
 def all_posts(request):
     current_user = request.user;
     posts = Post.objects.order_by('-date_created').all()
-    return JsonResponse([post.serialize(current_user) for post in posts], safe=False)
+    paginator = Paginator(posts, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return JsonResponse({
+        "posts": [post.serialize(current_user) for post in page_obj],
+        "pagination": {
+            "current_page": page_obj.number,
+            "pages": page_obj.paginator.num_pages,
+        }
+    }, safe=False)
 
 
 
@@ -143,12 +154,19 @@ def profile_page(request, user_id):
         followers = Following.objects.filter(followee=user).count()
         follows = Following.objects.filter(follower=user).count()
         posts = Post.objects.filter(user=user).order_by('-date_created')
+        paginator = Paginator(posts, 10)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
 
         return JsonResponse({
             "user": user.serialize(),
             "followers": followers,
             "follows": follows,
-            "posts": [post.serialize(user) for post in posts]
+            "posts": [post.serialize(user) for post in page_obj],
+            "pagination": {
+                "current_page": page_obj.number,
+                "pages": page_obj.paginator.num_pages,
+            }
         }, status=201)
 
 
