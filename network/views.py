@@ -170,6 +170,27 @@ def profile_page(request, user_id):
         }, status=201)
 
 
+@csrf_exempt
+@login_required
+def follow_toggle(request, user_id):
+    if request.method != "PUT":
+        return JsonResponse({"error": "PUT request required."}, status=400)
+
+    follower_user = request.user
+    followee_user = User.objects.filter(id=user_id).first()
+    
+    following = Following.objects.filter(followee=followee_user, follower=follower_user).first()
+    if not following:
+        new_following = Following(followee=followee_user, follower=follower_user)
+        new_following.save()
+        followed = True
+    else:
+        following.delete()
+        followed = False
+    return JsonResponse({"followed": followed}, status=201)
+
+
+
     
 
     
