@@ -108,4 +108,10 @@
   .previos-page:hover {
     background-color: #f8f9fa;
   }
+
+  .username-following-container {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+  }
   
