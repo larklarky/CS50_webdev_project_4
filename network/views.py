@@ -148,6 +148,7 @@ def edit_post(request, post_id):
 @login_required
 def profile_page(request, user_id):
     user = User.objects.filter(id=user_id).first()
+    current_user = request.user
     if not user:
         return JsonResponse({"error": "User doesn't exist"}, status=404)
     else:
@@ -157,11 +158,17 @@ def profile_page(request, user_id):
         paginator = Paginator(posts, 10)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
+        following = Following.objects.filter(followee=user, follower=current_user).first()
+        if not following:
+            followed = False;
+        else:
+            followed = True;
 
         return JsonResponse({
             "user": user.serialize(),
             "followers": followers,
             "follows": follows,
+            "followed": followed,
             "posts": [post.serialize(user) for post in page_obj],
             "pagination": {
                 "current_page": page_obj.number,
@@ -178,6 +185,9 @@ def follow_toggle(request, user_id):
 
     follower_user = request.user
     followee_user = User.objects.filter(id=user_id).first()
+
+    if follower_user == followee_user:
+        return JsonResponse({"error": "Users can't follow themselves"}, status=400)
     
     following = Following.objects.filter(followee=followee_user, follower=follower_user).first()
     if not following:

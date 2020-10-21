@@ -2,8 +2,8 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('#all-posts').addEventListener('click', all_posts);
     document.querySelector('.new-post-form').addEventListener('submit', create_post);
     document.querySelector('#username').addEventListener('click', (event) => profile_page(event.target.dataset.id));
+    document.querySelector('.follow_button').addEventListener('click', follow_toggle);
 
-    
      // By default
     console.log('on load')
      all_posts();
@@ -208,6 +208,22 @@ function profile_page(user_id, page=1) {
         document.querySelector('.title').innerHTML = `User: ${result.user.username}`;
         document.querySelector('.user-follows').innerHTML = `Follows: ${result.follows}`;
         document.querySelector('.user-followers').innerHTML = `Followers: ${result.followers}`;
+        let follower_user_id = document.querySelector('#username').dataset.id;
+        let followee_user_id = user_id;
+        if (follower_user_id === followee_user_id) {
+            document.querySelector('.follow_button').style.display = 'none';
+        } else {
+            document.querySelector('.follow_button').style.display = 'block';
+            document.querySelector('.follow_button').dataset.id = user_id;
+        }
+
+
+        if (result.followed === true) {
+            document.querySelector('.follow_button').innerHTML = 'Unfollow';
+        } else {
+            document.querySelector('.follow_button').innerHTML = 'Follow';
+        }
+        
 
         for (post of result.posts) {
             let postContainer = build_post(post);
@@ -242,4 +258,35 @@ function profile_page(user_id, page=1) {
 
     })
 
+}
+
+
+function follow_toggle(event) {
+    document.querySelector('#error-message').style.display = 'none';
+
+    let followee_user_id = event.target.dataset.id;
+    let follower_user_id = document.querySelector('#username').dataset.id;
+
+    if (followee_user_id === follower_user_id) {
+        document.querySelector('#error-message').style.display = 'block';
+        document.querySelector('#error-message').innerHTML = "Users can't follow themselves";
+    } else {
+        fetch(`users/${followee_user_id}/following`, {
+            method: 'PUT'
+        })
+        .then(response => {
+            response.json().then(result => {
+                if (response.status === 201) {
+                    if (result.followed === true) {
+                        document.querySelector('.follow_button').innerHTML = 'Unfollow';
+                    } else {
+                        document.querySelector('.follow_button').innerHTML = 'Follow';
+                    }
+                } else {
+                    document.querySelector('#error-message').style.display = 'block';
+                    document.querySelector('#error-message').innerHTML = result.error;
+                }
+            })
+        })
+    }
 }
