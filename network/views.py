@@ -201,6 +201,31 @@ def follow_toggle(request, user_id):
 
 
 
+@csrf_exempt
+@login_required
+def following_posts(request):
+    user = request.user
+    followed = user.followers.all()
+    users_list = []
+
+    for followed_object in followed:
+        users_list.append(followed_object.followee_id)
+    
+    following_posts = Post.objects.filter(user_id__in = users_list).order_by('-date_created')
+    paginator = Paginator(following_posts, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    return JsonResponse({
+        "posts": [post.serialize(user) for post in page_obj],
+        "pagination": {
+            "current_page": page_obj.number,
+            "pages": page_obj.paginator.num_pages,
+        }
+    }, status=201)
+    
+
+
     
 
     

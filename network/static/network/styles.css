@@ -20,6 +20,10 @@
     margin: 1rem 20%;
 }
 
+#all-posts-view > h5{
+    margin: 1rem 20%;
+}
+
 .followings-container {
     display: flex;
     flex-direction: row;

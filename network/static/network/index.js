@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('.new-post-form').addEventListener('submit', create_post);
     document.querySelector('#username').addEventListener('click', (event) => profile_page(event.target.dataset.id));
     document.querySelector('.follow_button').addEventListener('click', follow_toggle);
+    document.querySelector('#following').addEventListener('click', (event) => following_posts());
 
      // By default
     console.log('on load')
@@ -289,4 +290,55 @@ function follow_toggle(event) {
             })
         })
     }
+}
+
+function following_posts(page=1) {
+    console.log('following on load')
+    document.querySelector('#error-message').style.display = 'none';
+    document.querySelector('#edit-post-view').style.display = 'none';
+    document.querySelector('#create-post-view').style.display = 'none';
+    document.querySelector('#all-posts-view').style.display = 'block';
+    document.querySelector('#user-page-view').style.display = 'none';
+    document.querySelector('#user-posts-container').innerHTML = '';
+    document.querySelector('#all-posts-view').innerHTML = '';
+
+    fetch(`/following_posts?page=${page}`)
+    .then(response => response.json())
+    .then(data => {
+        let followingPosts = document.createElement('h5')
+        followingPosts.innerHTML = "Following posts"
+        document.querySelector('#all-posts-view').append(followingPosts)
+
+        for (post of data.posts) {
+            let postContainer = build_post(post);
+            
+            document.querySelector('#all-posts-view').append(postContainer)
+        
+        }
+        if (data.pagination.pages > 1) {
+            let paginatorContainer = document.createElement('div');
+            paginatorContainer.className = "paginator-container";
+
+            if (data.pagination.current_page > 1) {
+                let previousPage = document.createElement('div');
+                previousPage.className = 'previos-page';
+                previousPage.innerHTML = 'Previous';
+                previousPage.onclick = () => {
+                    following_posts(data.pagination.current_page - 1)
+                } 
+                paginatorContainer.append(previousPage);
+            }
+            if (data.pagination.current_page < data.pagination.pages) {
+                let nextPage = document.createElement('div');
+                nextPage.className = 'next-page';
+                nextPage.innerHTML = 'Next';
+                nextPage.onclick = () => {
+                    following_posts(data.pagination.current_page + 1)
+                }
+                paginatorContainer.append(nextPage);
+            }
+            document.querySelector('#all-posts-view').append(paginatorContainer);
+        }
+
+    })
 }
