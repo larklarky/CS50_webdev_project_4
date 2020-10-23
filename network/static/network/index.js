@@ -1,16 +1,18 @@
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('#all-posts').addEventListener('click', all_posts);
-    document.querySelector('.new-post-form').addEventListener('submit', create_post);
-    document.querySelector('#username').addEventListener('click', (event) => profile_page(event.target.dataset.id));
-    document.querySelector('.follow_button').addEventListener('click', follow_toggle);
-    document.querySelector('#following').addEventListener('click', (event) => following_posts());
-
+    let create_post = document.querySelector('.new-post-form')
+    if (create_post !== null){
+        document.querySelector('.new-post-form').addEventListener('submit', create_post);
+        document.querySelector('#username').addEventListener('click', (event) => profile_page(event.target.dataset.id));
+        document.querySelector('.follow_button').addEventListener('click', follow_toggle);
+        document.querySelector('#following').addEventListener('click', (event) => following_posts());
+    }
+    
      // By default
-    console.log('on load')
      all_posts();
 })
 
-function build_post(post) {
+function build_post(post, username) {
     let postContainer = document.createElement('div');
     postContainer.className = 'post-container';
 
@@ -42,7 +44,14 @@ function build_post(post) {
         heart.className = 'fa fa-heart-o';
     }
     heart.dataset.id = post.id;
-    heart.onclick = like_toggle;
+    if (username !== null) {
+        heart.onclick = like_toggle;
+    } else {
+        heart.onclick = () => {
+            document.querySelector('#error-message').style.display = 'block';
+            document.querySelector('#error-message').innerHTML = 'To be able to like posts you need to sign in';
+        }
+    }
     likesContainer.append(heart);
 
     let likes = document.createElement('div');
@@ -64,20 +73,27 @@ function build_post(post) {
 
 
 function all_posts(page=1) {
-    console.log('all_post function')
+    
     document.querySelector('#error-message').style.display = 'none';
-    document.querySelector('#create-post-view').style.display = 'block';
-    document.querySelector('#all-posts-view').style.display = 'block';
-    document.querySelector('#edit-post-view').style.display = 'none';
     document.querySelector('#user-page-view').style.display = 'none';
-    let username = document.querySelector('#username').text;
+    let createPost = document.querySelector('#create-post-view')
+    let username = null;
+    if (createPost !== null) {
+        document.querySelector('#create-post-view').style.display = 'block';
+        document.querySelector('#edit-post-view').style.display = 'none';
+        username = document.querySelector('#username').text;
+    }
+    
+    document.querySelector('#all-posts-view').style.display = 'block';
+    
+    
     document.querySelector('#all-posts-view').innerHTML = '';
 
     fetch(`/all_posts?page=${page}`)
     .then(response => response.json())
     .then(data => {
         for (post of data.posts) {
-            let postContainer = build_post(post);
+            let postContainer = build_post(post, username);
             
             document.querySelector('#all-posts-view').append(postContainer)
         
@@ -195,12 +211,15 @@ function edit_post(event) {
 
 function profile_page(user_id, page=1) {
     document.querySelector('#error-message').style.display = 'none';
-    document.querySelector('#edit-post-view').style.display = 'none';
-    document.querySelector('#create-post-view').style.display = 'none';
-    document.querySelector('#all-posts-view').style.display = 'none';
     document.querySelector('#user-page-view').style.display = 'block';
+    document.querySelector('#all-posts-view').style.display = 'none';
     document.querySelector('#user-posts-container').innerHTML = '';
-
+    document.querySelector('.follow_button').style.display = 'none';
+    let editPost = document.querySelector('#edit-post-view')
+    if (editPost !== null) {
+        document.querySelector('#edit-post-view').style.display = 'none';
+        document.querySelector('#create-post-view').style.display = 'none';
+    }
     
 
     fetch(`users/${user_id}?page=${page}`)
@@ -209,9 +228,13 @@ function profile_page(user_id, page=1) {
         document.querySelector('.title').innerHTML = `User: ${result.user.username}`;
         document.querySelector('.user-follows').innerHTML = `Follows: ${result.follows}`;
         document.querySelector('.user-followers').innerHTML = `Followers: ${result.followers}`;
-        let follower_user_id = document.querySelector('#username').dataset.id;
+        
+        let follower_user_id = document.querySelector('#username')
+        if (follower_user_id !== null) {
+            follower_user_id = document.querySelector('#username').dataset.id;
+        }
         let followee_user_id = user_id;
-        if (follower_user_id === followee_user_id) {
+        if (follower_user_id === followee_user_id || follower_user_id === null) {
             document.querySelector('.follow_button').style.display = 'none';
         } else {
             document.querySelector('.follow_button').style.display = 'block';
@@ -227,7 +250,7 @@ function profile_page(user_id, page=1) {
         
 
         for (post of result.posts) {
-            let postContainer = build_post(post);
+            let postContainer = build_post(post, follower_user_id);
             
             document.querySelector('#user-posts-container').append(postContainer)
         }
@@ -293,7 +316,6 @@ function follow_toggle(event) {
 }
 
 function following_posts(page=1) {
-    console.log('following on load')
     document.querySelector('#error-message').style.display = 'none';
     document.querySelector('#edit-post-view').style.display = 'none';
     document.querySelector('#create-post-view').style.display = 'none';

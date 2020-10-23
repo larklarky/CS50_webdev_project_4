@@ -19,9 +19,13 @@ class Post(models.Model):
     date_modified = models.DateTimeField(auto_now = True)
 
     def serialize(self, current_user):
-        like = self.likes.filter(user=current_user).first()
-        if like:
-            liked = True;
+        print('current user', current_user, type(current_user))
+        if current_user.is_anonymous == False:
+            like = self.likes.filter(user=current_user).first()
+            if like:
+                liked = True;
+            else:
+                liked = False;
         else:
             liked = False;
         return {

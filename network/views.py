@@ -82,7 +82,7 @@ def create_post(request):
     return JsonResponse({"message": "Post created successfully."}, status=201)
 
 
-@login_required
+
 def all_posts(request):
     current_user = request.user;
     posts = Post.objects.order_by('-date_created').all()
@@ -145,10 +145,10 @@ def edit_post(request, post_id):
 
 
 
-@login_required
 def profile_page(request, user_id):
     user = User.objects.filter(id=user_id).first()
     current_user = request.user
+    
     if not user:
         return JsonResponse({"error": "User doesn't exist"}, status=404)
     else:
@@ -158,11 +158,14 @@ def profile_page(request, user_id):
         paginator = Paginator(posts, 10)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
-        following = Following.objects.filter(followee=user, follower=current_user).first()
-        if not following:
-            followed = False;
-        else:
-            followed = True;
+        if current_user.is_anonymous == False:
+            following = Following.objects.filter(followee=user, follower=current_user).first()
+            if not following:
+                followed = False
+            else:
+                followed = True
+        else: 
+            followed = False
 
         return JsonResponse({
             "user": user.serialize(),
