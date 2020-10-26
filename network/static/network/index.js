@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('#all-posts').addEventListener('click', all_posts);
-    let create_post = document.querySelector('.new-post-form')
-    if (create_post !== null){
+    let create_post_form = document.querySelector('.new-post-form')
+    if (create_post_form !== null){
         document.querySelector('.new-post-form').addEventListener('submit', create_post);
         document.querySelector('#username').addEventListener('click', (event) => profile_page(event.target.dataset.id));
         document.querySelector('.follow_button').addEventListener('click', follow_toggle);
