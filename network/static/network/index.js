@@ -73,7 +73,6 @@ function build_post(post, username) {
 
 
 function all_posts(page=1) {
-    
     document.querySelector('#error-message').style.display = 'none';
     document.querySelector('#user-page-view').style.display = 'none';
     let createPost = document.querySelector('#create-post-view')
