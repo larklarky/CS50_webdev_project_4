@@ -188,7 +188,7 @@ def follow_toggle(request, user_id):
 
     follower_user = request.user
     followee_user = User.objects.filter(id=user_id).first()
-
+    
     if follower_user == followee_user:
         return JsonResponse({"error": "Users can't follow themselves"}, status=400)
     
@@ -200,7 +200,12 @@ def follow_toggle(request, user_id):
     else:
         following.delete()
         followed = False
-    return JsonResponse({"followed": followed}, status=201)
+    
+    followers = Following.objects.filter(followee=followee_user).count()
+    follows = Following.objects.filter(follower=followee_user).count()
+
+
+    return JsonResponse({"followed": followed, "followers": followers, "follows": follows}, status=201)
 
 
 

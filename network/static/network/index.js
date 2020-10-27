@@ -301,6 +301,8 @@ function follow_toggle(event) {
         .then(response => {
             response.json().then(result => {
                 if (response.status === 201) {
+                    document.querySelector('.user-follows').innerHTML = `Follows: ${result.follows}`;
+                    document.querySelector('.user-followers').innerHTML = `Followers: ${result.followers}`;
                     if (result.followed === true) {
                         document.querySelector('.follow_button').innerHTML = 'Unfollow';
                     } else {
